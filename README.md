@@ -1,14 +1,214 @@
-# fdns-ms-reporting
-This is the repository for the reporting microservice.
+# FDNS Reporting Microservice
+This is the project with the Reporting microservice for generating reports from the data lake in XML, JSON, CSV or XLSX.
 
-This repository was created for use by CDC programs to collaborate on public health surveillance related projects in support of the CDC Surveillance Strategy.  Github is not hosted by the CDC, but is used by CDC and its partners to share information and collaborate on software.
+## Running locally
+Carefully read the following instructions for information on how to build, run, and test this microservice in your local environment.
 
-## ----- Start of respository specific READ ME -----
-### This repository specific READ ME instructions go here
+### Before you start
+You will need to have the following software installed to run this microservice in your local environment:
 
-Replace everything within this section demarcated with “-----“ with material appropriate to your repo that is useful to your developers and users like installation steps, user guide etc.
-## ----- End of respository specific READ ME -----
-  
+- Docker, [Installation guides](https://docs.docker.com/install/)
+- Docker Compose, [Installation guides](https://docs.docker.com/compose/install/)
+- **Windows Users**: This project uses `Make`. Please use [Cygwin](https://www.cygwin.com/) or the [Windows Subsystem for Linux](https://docs.microsoft.com/en-us/windows/wsl/install-win10) for running the commands in this README
+
+### Build
+
+First, you'll need to build the image. You can build the image by running the following command:
+
+```
+make docker-build
+```
+
+### Run
+
+Once the image has been built, you can run it with the following command:
+
+```
+make docker-run
+```
+
+### Test
+
+To check if the microservice is running, open the following URL in your browser:
+
+[http://127.0.0.1:8091/](http://127.0.0.1:8091/)
+
+### Documentation
+
+To access the Swagger documentation, open the following URL in your browser:
+
+[http://127.0.0.1:8091/swagger-ui.html](http://127.0.0.1:8091/swagger-ui.html)
+
+### Docker Compose
+This microservice is designed to be used with other microservices. Please look at the [docker-compose](./docker-compose.yml) file for more information.
+
+### OAuth 2 Configuration
+
+This microservice is configurable so that it can be secured via an OAuth 2 provider.
+
+__Scopes__: This application uses the following scope: `reporting.*`
+
+Please see the following environment variables for configuring with your OAuth 2 provider:
+
+* `OAUTH2_ACCESS_TOKEN_URI`: This is the introspection URL of your provider, ex: `https://hydra:4444/oauth2/introspect`
+* `OAUTH2_PROTECTED_URIS`: This is a path for which routes are to be restricted, ex: `/api/1.0/**`
+* `OAUTH2_CLIENT_ID`: This is your OAuth 2 client id with the provider
+* `OAUTH2_CLIENT_SECRET`: This is your OAuth 2 client secret with the provider
+* `SSL_VERIFYING_DISABLE`: This is an option to disable SSL verification, you can disable this when testing locally but this should be set to `false` for all production systems
+
+### Minio
+Be sure that your local configuration is correct by editing `~/.mc/config.json`:
+
+```json
+"local": {
+    "url": "http://localhost:9000",
+    "accessKey": "minio",
+    "secretKey": "minio123",
+    "api": "S3v4"
+}
+```
+
+Create the required minio bucket where we'll store the HL7 and CDA messages:
+
+```
+mc mb local/reporting
+```
+
+Then, you'll need to run the two Kafka jobs. You can find more information in the project `fdns-ms-reporting-kafka`.
+
+### Additional Configuration
+
+
+To be sure that it runs properly, just open the following URL in your browser:
+
+```
+http://127.0.0.1:8091/
+```
+
+You can submit a new request to get a ZIP file containing all items in JSON or XML by POSTing this query:
+
+```json
+{
+	"query": "",
+	"format": "json",
+	"index": "ngmvps.message"
+}
+```
+
+Or
+
+```json
+{
+	"query": "",
+	"format": "xml",
+	"index": "ngmvps.message"
+}
+```
+
+If you want to get a CSV or an XLSX file, the Kafka jobs will need to use a configuration provided to `fdns-ms-combiner`. If you know that a configuration is already store in this micro service, you can use the following query:
+
+```json
+{
+	"query": "",
+	"format": "csv",
+	"index": "ngmvps.message",
+	"config": "ngmvps-message"
+}
+```
+
+Or
+
+```json
+{
+	"query": "",
+	"format": "xlsx",
+	"index": "ngmvps.message",
+	"config": "ngmvps-message"
+}
+```
+
+If you prefer to provide a custom mapping, the Reporting micro service will create the Combiner configuration for you on the fly. Here is the syntax:
+
+```json
+{
+	"query": "",
+	"format": "xlsx",
+	"index": "ngmvps.message",
+	"mapping": [{
+		"path": "$.extractor.version",
+		"label": "Message Version"
+	}, {
+		"path": "$.extractor.hash",
+		"label": "Message Hash"
+	}, {
+		"path": "$.extractor.UCID.hash",
+		"label": "Case ID"
+	}, {
+		"path": "$.extractor.timestamp.$numberLong",
+		"label": "Timestamp"
+	}, {
+		"path": "$.sourceType",
+		"label": "Type"
+	}, {
+		"path": "$.patient.name",
+		"label": "Patient Name"
+	}, {
+		"path": "$.patient.dob",
+		"label": "Patient DOB"
+	}, {
+		"path": "$.patient.sex",
+		"label": "Patient Sex"
+	}, {
+		"path": "$.observation.name",
+		"label": "Condition"
+	}, {
+		"path": "$.observation.code",
+		"label": "Condition Code"
+	}, {
+		"path": "$.jurisdiction.name",
+		"label": "Reporting Facility"
+	}, {
+		"path": "$.jurisdiction.id",
+		"label": "Jurisdiction Code"
+	}, {
+		"path": "$.ingestion.payloadName",
+		"label": "Message Payload"
+	}, {
+		"path": "$.ingestion.fromPartyId",
+		"label": "Message From"
+	}, {
+		"path": "$.ingestion.localFileName",
+		"label": "Message File Name"
+	}, {
+		"path": "$.ingestion.receivedTime",
+		"label": "Message Received"
+	}, {
+		"path": "$.ingestion.messageRecipient",
+		"label": "Message Recipient"
+	}]
+}
+```
+
+It's possible as well to specify the drawer name where you want to export the final reports as shown below (if you don't specify it, it will be exported to the `reporting` drawer):
+
+```json
+{
+	...,
+	"export": {
+		"drawerName": "ngmvps"
+	}
+}
+```
+
+# How to access the documentation?
+
+To access the Swagger documentation, just open the following URL in your browser:
+
+```
+http://127.0.0.1:8091/swagger-ui.html
+```
+
+
 ## Public Domain
 This repository constitutes a work of the United States Government and is not
 subject to domestic copyright protection under 17 USC § 105. This repository is in
@@ -22,16 +222,16 @@ copyright interest.
 The repository utilizes code licensed under the terms of the Apache Software
 License and therefore is licensed under ASL v2 or later.
 
-This source code in this repository is free: you can redistribute it and/or modify it under
+The source code in this repository is free: you can redistribute it and/or modify it under
 the terms of the Apache Software License version 2, or (at your option) any
 later version.
 
-This soruce code in this repository is distributed in the hope that it will be useful, but WITHOUT ANY
+The source code in this repository is distributed in the hope that it will be useful, but WITHOUT ANY
 WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 PARTICULAR PURPOSE. See the Apache Software License for more details.
 
 You should have received a copy of the Apache Software License along with this
-program. If not, see http://www.apache.org/licenses/LICENSE-2.0.html
+program. If not, see https://www.apache.org/licenses/LICENSE-2.0.html.
 
 The source code forked from other open source projects will inherit its license.
 
@@ -49,21 +249,20 @@ and submitting a pull request. (If you are new to GitHub, you might start with a
 [basic tutorial](https://help.github.com/articles/set-up-git).) By contributing
 to this project, you grant a world-wide, royalty-free, perpetual, irrevocable,
 non-exclusive, transferable license to all users under the terms of the
-[Apache Software License v2](http://www.apache.org/licenses/LICENSE-2.0.html) or
+[Apache Software License v2](https://www.apache.org/licenses/LICENSE-2.0.html) or
 later.
 
 All comments, messages, pull requests, and other submissions received through
-CDC including this GitHub page are subject to the [Presidential Records Act](http://www.archives.gov/about/laws/presidential-records.html)
-and may be archived. Learn more at [http://www.cdc.gov/other/privacy.html](http://www.cdc.gov/other/privacy.html).
+CDC including this GitHub page are subject to the [Presidential Records Act](https://www.archives.gov/about/laws/presidential-records.html)
+and may be archived. Learn more at [https://www.cdc.gov/other/privacy.html](https://www.cdc.gov/other/privacy.html).
 
 ## Records
 This repository is not a source of government records, but is a copy to increase
 collaboration and collaborative potential. All government records will be
-published through the [CDC web site](http://www.cdc.gov).
+published through the [CDC web site](https://www.cdc.gov).
 
 ## Notices
 Please refer to [CDC's Template Repository](https://github.com/CDCgov/template)
 for more information about [contributing to this repository](https://github.com/CDCgov/template/blob/master/CONTRIBUTING.md),
 [public domain notices and disclaimers](https://github.com/CDCgov/template/blob/master/DISCLAIMER.md),
 and [code of conduct](https://github.com/CDCgov/template/blob/master/code-of-conduct.md).
-
