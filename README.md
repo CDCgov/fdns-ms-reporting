@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/CDCgov/fdns-ms-reporting.svg?branch=master)](https://travis-ci.org/CDCgov/fdns-ms-reporting)
+
 # FDNS Reporting Microservice
 This is the project with the Reporting microservice for generating reports from the data lake in XML, JSON, CSV or XLSX.
 
