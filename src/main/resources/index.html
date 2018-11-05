@@ -55,7 +55,7 @@
   --header 'Content-Type: application/json' \
   --header 'Accept: application/json' \
   -d '{ "query": "", "format": "json", "type": "indexing", "index": "simple-test" }' \
-  '<span class='origin'>http://127.0.0.1:8083/</span>jobs'</code></pre>
+  '<span class='origin'>http://127.0.0.1:8083/</span>api/1.0/jobs'</code></pre>
   	  <p>You should receive a JSON object like this one:</p>
   	  <pre><code>{
   "query": "",
@@ -75,7 +75,7 @@
 	    <p>Then, you can just look at the progress using the <code>_id</code>:</p>
       <button class="btn" data-clipboard-target="#curl-cmd-2">Copy</button>
 	    <pre id="curl-cmd-2"><code>curl -X GET \
-  '<span class='origin'>http://127.0.0.1:8083/</span>jobs/566e54da-9715-40c4-8bbb-63df00296b59'
+  '<span class='origin'>http://127.0.0.1:8083/</span>api/1.0/jobs/566e54da-9715-40c4-8bbb-63df00296b59'
 </code></pre>
     </section>
   </div>
