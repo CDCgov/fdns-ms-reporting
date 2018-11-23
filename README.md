@@ -1,12 +1,15 @@
 [![Build Status](https://travis-ci.org/CDCgov/fdns-ms-reporting.svg?branch=master)](https://travis-ci.org/CDCgov/fdns-ms-reporting)
 
 # FDNS Reporting Microservice
+
 This is the project with the Reporting microservice for generating reports from the data lake in XML, JSON, CSV or XLSX.
 
 ## Running locally
+
 Carefully read the following instructions for information on how to build, run, and test this microservice in your local environment.
 
 ### Before you start
+
 You will need to have the following software installed to run this microservice in your local environment:
 
 - Docker, [Installation guides](https://docs.docker.com/install/)
@@ -17,7 +20,7 @@ You will need to have the following software installed to run this microservice 
 
 First, you'll need to build the image. You can build the image by running the following command:
 
-```
+```sh
 make docker-build
 ```
 
@@ -25,7 +28,7 @@ make docker-build
 
 Once the image has been built, you can run it with the following command:
 
-```
+```sh
 make docker-run
 ```
 
@@ -42,6 +45,7 @@ To access the Swagger documentation, open the following URL in your browser:
 [http://127.0.0.1:8091/swagger-ui.html](http://127.0.0.1:8091/swagger-ui.html)
 
 ### Docker Compose
+
 This microservice is designed to be used with other microservices. Please look at the [docker-compose](./docker-compose.yml) file for more information.
 
 ### OAuth 2 Configuration
@@ -52,13 +56,14 @@ __Scopes__: This application uses the following scope: `reporting.*`
 
 Please see the following environment variables for configuring with your OAuth 2 provider:
 
-* `OAUTH2_ACCESS_TOKEN_URI`: This is the introspection URL of your provider, ex: `https://hydra:4444/oauth2/introspect`
-* `OAUTH2_PROTECTED_URIS`: This is a path for which routes are to be restricted, ex: `/api/1.0/**`
-* `OAUTH2_CLIENT_ID`: This is your OAuth 2 client id with the provider
-* `OAUTH2_CLIENT_SECRET`: This is your OAuth 2 client secret with the provider
-* `SSL_VERIFYING_DISABLE`: This is an option to disable SSL verification, you can disable this when testing locally but this should be set to `false` for all production systems
+- `OAUTH2_ACCESS_TOKEN_URI`: This is the introspection URL of your provider, ex: `https://hydra:4444/oauth2/introspect`
+- `OAUTH2_PROTECTED_URIS`: This is a path for which routes are to be restricted, ex: `/api/1.0/**`
+- `OAUTH2_CLIENT_ID`: This is your OAuth 2 client id with the provider
+- `OAUTH2_CLIENT_SECRET`: This is your OAuth 2 client secret with the provider
+- `SSL_VERIFYING_DISABLE`: This is an option to disable SSL verification, you can disable this when testing locally but this should be set to `false` for all production systems
 
 ### Minio
+
 Be sure that your local configuration is correct by editing `~/.mc/config.json`:
 
 ```json
@@ -72,7 +77,7 @@ Be sure that your local configuration is correct by editing `~/.mc/config.json`:
 
 Create the required minio bucket where we'll store the HL7 and CDA messages:
 
-```
+```sh
 mc mb local/reporting
 ```
 
@@ -80,10 +85,9 @@ Then, you'll need to run the two Kafka jobs. You can find more information in th
 
 ### Additional Configuration
 
-
 To be sure that it runs properly, just open the following URL in your browser:
 
-```
+```sh
 http://127.0.0.1:8091/
 ```
 
@@ -91,9 +95,9 @@ You can submit a new request to get a ZIP file containing all items in JSON or X
 
 ```json
 {
-	"query": "",
-	"format": "json",
-	"index": "ngmvps.message"
+  "query": "",
+  "format": "json",
+  "index": "ngmvps.message"
 }
 ```
 
@@ -101,9 +105,9 @@ Or
 
 ```json
 {
-	"query": "",
-	"format": "xml",
-	"index": "ngmvps.message"
+  "query": "",
+  "format": "xml",
+  "index": "ngmvps.message"
 }
 ```
 
@@ -111,10 +115,10 @@ If you want to get a CSV or an XLSX file, the Kafka jobs will need to use a conf
 
 ```json
 {
-	"query": "",
-	"format": "csv",
-	"index": "ngmvps.message",
-	"config": "ngmvps-message"
+  "query": "",
+  "format": "csv",
+  "index": "ngmvps.message",
+  "config": "ngmvps-message"
 }
 ```
 
@@ -122,10 +126,10 @@ Or
 
 ```json
 {
-	"query": "",
-	"format": "xlsx",
-	"index": "ngmvps.message",
-	"config": "ngmvps-message"
+  "query": "",
+  "format": "xlsx",
+  "index": "ngmvps.message",
+  "config": "ngmvps-message"
 }
 ```
 
@@ -133,61 +137,61 @@ If you prefer to provide a custom mapping, the Reporting micro service will crea
 
 ```json
 {
-	"query": "",
-	"format": "xlsx",
-	"index": "ngmvps.message",
-	"mapping": [{
-		"path": "$.extractor.version",
-		"label": "Message Version"
-	}, {
-		"path": "$.extractor.hash",
-		"label": "Message Hash"
-	}, {
-		"path": "$.extractor.UCID.hash",
-		"label": "Case ID"
-	}, {
-		"path": "$.extractor.timestamp.$numberLong",
-		"label": "Timestamp"
-	}, {
-		"path": "$.sourceType",
-		"label": "Type"
-	}, {
-		"path": "$.patient.name",
-		"label": "Patient Name"
-	}, {
-		"path": "$.patient.dob",
-		"label": "Patient DOB"
-	}, {
-		"path": "$.patient.sex",
-		"label": "Patient Sex"
-	}, {
-		"path": "$.observation.name",
-		"label": "Condition"
-	}, {
-		"path": "$.observation.code",
-		"label": "Condition Code"
-	}, {
-		"path": "$.jurisdiction.name",
-		"label": "Reporting Facility"
-	}, {
-		"path": "$.jurisdiction.id",
-		"label": "Jurisdiction Code"
-	}, {
-		"path": "$.ingestion.payloadName",
-		"label": "Message Payload"
-	}, {
-		"path": "$.ingestion.fromPartyId",
-		"label": "Message From"
-	}, {
-		"path": "$.ingestion.localFileName",
-		"label": "Message File Name"
-	}, {
-		"path": "$.ingestion.receivedTime",
-		"label": "Message Received"
-	}, {
-		"path": "$.ingestion.messageRecipient",
-		"label": "Message Recipient"
-	}]
+  "query": "",
+  "format": "xlsx",
+  "index": "message",
+  "mapping": [{
+    "path": "$.extractor.version",
+    "label": "Message Version"
+  }, {
+    "path": "$.extractor.hash",
+    "label": "Message Hash"
+  }, {
+    "path": "$.extractor.UCID.hash",
+    "label": "Case ID"
+  }, {
+    "path": "$.extractor.timestamp.$numberLong",
+    "label": "Timestamp"
+  }, {
+    "path": "$.sourceType",
+    "label": "Type"
+  }, {
+    "path": "$.patient.name",
+    "label": "Patient Name"
+  }, {
+    "path": "$.patient.dob",
+    "label": "Patient DOB"
+  }, {
+    "path": "$.patient.sex",
+    "label": "Patient Sex"
+  }, {
+    "path": "$.observation.name",
+    "label": "Condition"
+  }, {
+    "path": "$.observation.code",
+    "label": "Condition Code"
+  }, {
+    "path": "$.jurisdiction.name",
+    "label": "Reporting Facility"
+  }, {
+    "path": "$.jurisdiction.id",
+    "label": "Jurisdiction Code"
+  }, {
+    "path": "$.ingestion.payloadName",
+    "label": "Message Payload"
+  }, {
+    "path": "$.ingestion.fromPartyId",
+    "label": "Message From"
+  }, {
+    "path": "$.ingestion.localFileName",
+    "label": "Message File Name"
+  }, {
+    "path": "$.ingestion.receivedTime",
+    "label": "Message Received"
+  }, {
+    "path": "$.ingestion.messageRecipient",
+    "label": "Message Recipient"
+  }]
 }
 ```
 
@@ -195,23 +199,23 @@ It's possible as well to specify the drawer name where you want to export the fi
 
 ```json
 {
-	...,
-	"export": {
-		"drawerName": "ngmvps"
-	}
+  ...,
+  "export": {
+    "drawerName": "ngmvps"
+  }
 }
 ```
 
-# How to access the documentation?
+# How to access the documentation
 
 To access the Swagger documentation, just open the following URL in your browser:
 
-```
+```sh
 http://127.0.0.1:8091/swagger-ui.html
 ```
 
-
 ## Public Domain
+
 This repository constitutes a work of the United States Government and is not
 subject to domestic copyright protection under 17 USC § 105. This repository is in
 the public domain within the United States, and copyright and related rights in
@@ -221,6 +225,7 @@ submitting a pull request you are agreeing to comply with this waiver of
 copyright interest.
 
 ## License
+
 The repository utilizes code licensed under the terms of the Apache Software
 License and therefore is licensed under ASL v2 or later.
 
@@ -237,8 +242,8 @@ program. If not, see https://www.apache.org/licenses/LICENSE-2.0.html.
 
 The source code forked from other open source projects will inherit its license.
 
-
 ## Privacy
+
 This repository contains only non-sensitive, publicly available data and
 information. All material and community participation is covered by the
 Surveillance Platform [Disclaimer](https://github.com/CDCgov/template/blob/master/DISCLAIMER.md)
@@ -246,6 +251,7 @@ and [Code of Conduct](https://github.com/CDCgov/template/blob/master/code-of-con
 For more information about CDC's privacy policy, please visit [http://www.cdc.gov/privacy.html](http://www.cdc.gov/privacy.html).
 
 ## Contributing
+
 Anyone is encouraged to contribute to the repository by [forking](https://help.github.com/articles/fork-a-repo)
 and submitting a pull request. (If you are new to GitHub, you might start with a
 [basic tutorial](https://help.github.com/articles/set-up-git).) By contributing
@@ -259,11 +265,13 @@ CDC including this GitHub page are subject to the [Presidential Records Act](htt
 and may be archived. Learn more at [https://www.cdc.gov/other/privacy.html](https://www.cdc.gov/other/privacy.html).
 
 ## Records
+
 This repository is not a source of government records, but is a copy to increase
 collaboration and collaborative potential. All government records will be
 published through the [CDC web site](https://www.cdc.gov).
 
 ## Notices
+
 Please refer to [CDC's Template Repository](https://github.com/CDCgov/template)
 for more information about [contributing to this repository](https://github.com/CDCgov/template/blob/master/CONTRIBUTING.md),
 [public domain notices and disclaimers](https://github.com/CDCgov/template/blob/master/DISCLAIMER.md),
