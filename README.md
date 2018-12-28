@@ -52,7 +52,7 @@ This microservice is designed to be used with other microservices. Please look a
 
 This microservice is configurable so that it can be secured via an OAuth 2 provider.
 
-__Scopes__: This application uses the following scope: `reporting.*`
+__Scopes__: This application uses the following scope: `fdns.reporting`
 
 Please see the following environment variables for configuring with your OAuth 2 provider:
 

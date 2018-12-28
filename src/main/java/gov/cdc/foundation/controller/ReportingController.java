@@ -59,7 +59,10 @@ public class ReportingController {
 	private String kafkaTopicArchive;
 	private String kafkaTopicCombine;
 
-	private ReportingController(@Value("${kafka.topic.archive}") String kafkaTopicArchive, @Value("${kafka.topic.combine}") String kafkaTopicCombine) {
+	private ReportingController(
+		@Value("${kafka.topic.archive}") String kafkaTopicArchive,
+		@Value("${kafka.topic.combine}") String kafkaTopicCombine
+	) {
 		this.kafkaTopicArchive = kafkaTopicArchive;
 		this.kafkaTopicCombine = kafkaTopicCombine;
 	}
@@ -83,15 +86,19 @@ public class ReportingController {
 		}
 	}
 
-	@RequestMapping(value = "/jobs", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(
+		value = "/jobs",
+		method = RequestMethod.POST,
+		produces = MediaType.APPLICATION_JSON_VALUE,
+		consumes = MediaType.APPLICATION_JSON_VALUE
+	)
 	@ResponseBody
 	public ResponseEntity<?> request(
-			Principal principal,
-			@ApiIgnore @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
-			@RequestBody String reportRequest) throws IOException {
-
+		Principal principal,
+		@ApiIgnore @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
+		@RequestBody String reportRequest
+	) throws IOException {
 		Map<String, Object> log = MessageHelper.initializeLog(MessageHelper.METHOD_REQUESTREPORT, reportRequest);
-
 		ObjectMapper mapper = new ObjectMapper();
 
 		try {
@@ -217,7 +224,10 @@ public class ReportingController {
 		}
 	}
 
-	private void checkAuthorization(JSONObject request, String username) throws Exception {
+	private void checkAuthorization(
+		JSONObject request,
+		String username
+	) throws Exception {
 		if (auth.isSecured()) {
 			// Get scopes
 			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -273,10 +283,16 @@ public class ReportingController {
 		}
 	}
 
-	@RequestMapping(value = "/jobs/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(
+		value = "/jobs/{id}",
+		method = RequestMethod.PUT,
+		produces = MediaType.APPLICATION_JSON_VALUE
+	)
 	@ResponseBody
-	public ResponseEntity<?> restart(@ApiIgnore @RequestHeader(value = "Authorization", required = false) String authorizationHeader, @ApiParam(value = "Job Id") @PathVariable(value = "id") String id) throws IOException {
-
+	public ResponseEntity<?> restart(
+		@ApiIgnore @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
+		@ApiParam(value = "Job Id") @PathVariable(value = "id") String id
+	) throws IOException {
 		Map<String, Object> log = new HashMap<>();
 		log.put(MessageHelper.CONST_METHOD, MessageHelper.METHOD_RESTART);
 		log.put("jobId", id);
@@ -322,17 +338,27 @@ public class ReportingController {
 		}
 	}
 
-	@RequestMapping(value = "/jobs/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(
+		value = "/jobs/{id}",
+		method = RequestMethod.GET,
+		produces = MediaType.APPLICATION_JSON_VALUE
+	)
 	@ResponseBody
-	public ResponseEntity<?> getProgress(@ApiIgnore @RequestHeader(value = "Authorization", required = false) String authorizationHeader, @ApiParam(value = "Job Id") @PathVariable(value = "id") String id) throws IOException {
-
+	public ResponseEntity<?> getProgress(
+		@ApiIgnore @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
+		@ApiParam(value = "Job Id") @PathVariable(value = "id") String id
+	) throws IOException {
 		Map<String, Object> log = MessageHelper.initializeLog(MessageHelper.METHOD_REQUESTREPORT, id);
-
 		ObjectMapper mapper = new ObjectMapper();
 
 		try {
 			// Return the JSON object
-			return new ResponseEntity<>(mapper.readTree(ObjectHelper.getInstance(authorizationHeader).getObject(id).toString()), HttpStatus.OK);
+			return new ResponseEntity<>(
+				mapper.readTree(
+					ObjectHelper.getInstance(authorizationHeader).getObject(id).toString()
+				),
+				HttpStatus.OK
+			);
 		} catch (Exception e) {
 			logger.error(e);
 			LoggerHelper.log(MessageHelper.METHOD_REQUESTREPORT, log);

@@ -1,6 +1,8 @@
 version: '3.1'
 services:
   zookeeper:
+    ports:
+      - "32181:32181"
     image: confluentinc/cp-zookeeper:3.2.0
     environment:
       ZOOKEEPER_CLIENT_PORT: 32181
@@ -16,62 +18,7 @@ services:
     image: fluent/fluentd
     ports:
       - "24224:24224"
-  fdns-ms-storage:
-    image: cdcgov/fdns-ms-storage
-    depends_on:
-      - minio
+  fdns-ms-stubbing:
+    image: cdcgov/fdns-ms-stubbing
     ports:
-      - "8082:8082"
-  minio:
-    image: minio/minio
-    ports:
-      - "9000:9000"
-    environment:
-      MINIO_ACCESS_KEY: minio
-      MINIO_SECRET_KEY: minio123
-    command: server ~/Downloads/minio
-  fdns-ms-object:
-    image: cdcgov/fdns-ms-object
-    depends_on:
-      - mongo
-    ports:
-      - "8083:8083"
-  mongo:
-    image: mongo
-    ports:
-      - "27017:27017"
-  fdns-ms-indexing:
-    image: cdcgov/fdns-ms-indexing
-    depends_on:
-      - elastic
-    ports:
-      - "8084:8084"
-  elastic:
-    image: docker.elastic.co/elasticsearch/elasticsearch:5.3.0
-    ports:
-      - "9200:9200"
-    environment:
-      - http.host=0.0.0.0
-      - transport.host=127.0.0.1
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-      - xpack.security.enabled=false
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-      nofile:
-        soft: 65536
-        hard: 65536
-  fdns-ms-combiner:
-    image: cdcgov/fdns-ms-combiner
-    depends_on:
-      - fdns-ms-object
-    ports:
-      - "8085:8085"
-  fdns-ms-msft-utils:
-    image: cdcgov/fdns-ms-msft-utils
-    ports:
-      - "8086:8086"
-    environment:
-      - "JAVA_OPTS=-Xms4096m -Xmx4096m -XX:PermSize=64M -XX:MaxPermSize=1000M"
+      - "3002:3002" 

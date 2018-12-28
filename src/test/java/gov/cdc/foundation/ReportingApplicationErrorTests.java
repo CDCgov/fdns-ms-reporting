@@ -21,7 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
 				"logging.fluentd.host=fluentd",
 				"logging.fluentd.port=24224",
 				"kafka.brokers=kafka:29092",
-				"proxy.hostname=localhost",
+				"proxy.hostname=",
 				"security.oauth2.resource.user-info-uri=",
 				"security.oauth2.protected=",
 				"security.oauth2.client.client-id=",
@@ -35,13 +35,12 @@ public class ReportingApplicationErrorTests {
 	private MockMvc mvc;
 	private String baseUrlPath = "/api/1.0/";
 	
-
 	@Before
 	public void setup() {
 		// Define the object URL
-		System.setProperty("OBJECT_URL", "http://fdns-ms-object:8083");
+		System.setProperty("OBJECT_URL", "http://fdns-ms-stubbing:3002/object");
 		// Define the combiner URL
-		System.setProperty("COMBINER_URL", "http://fdns-ms-combiner:8085");
+		System.setProperty("COMBINER_URL", "http://fdns-ms-stubbing:3002/combiner");
 	}
 	
 	@Test
