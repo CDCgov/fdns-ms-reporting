@@ -34,7 +34,7 @@ public class OAuth2Configuration extends ResourceServerConfigurerAdapter {
 			http
 				.authorizeRequests()
 				.antMatchers(HttpMethod.OPTIONS).permitAll()
-				.antMatchers(protectedURIs).access("#oauth2.hasScope('reporting')")
+				.antMatchers(protectedURIs).access("#oauth2.hasScope('fdns.reporting')")
 				.anyRequest().permitAll();
 		else
 			http

@@ -1,7 +1,5 @@
 docker-build:
 	docker-compose up -d
-	printf 'Wait for fdns-ms-combiner\n'
-	until `curl --output /dev/null --silent --head --fail http://localhost:8085`; do printf '.'; sleep 1; done
 	docker build \
 	  -t fdns-ms-reporting \
 		--network=fdns-ms-reporting_default \
